@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "login_forms",
+  "info": {
+    "singularName": "login-form",
+    "pluralName": "login-forms",
+    "displayName": "LoginForm"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "username_label": {
+      "type": "string"
+    },
+    "passwordLabel": {
+      "type": "string"
+    },
+    "logoimage": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}
