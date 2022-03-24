@@ -1,7 +1,12 @@
 import { useState } from "react";
 import Cookies from "universal-cookie";
 
+
+
+
 const SignUp = () => {
+    const cookies = new Cookies();
+
     let [email, setEmail] = useState("");
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
@@ -26,7 +31,7 @@ const SignUp = () => {
         setPassword(password);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let newUserReqBody = {
             "username": username,
@@ -38,9 +43,8 @@ const SignUp = () => {
             "identifier": username,
             "password": password
         }
-        console.log(registeredUserReqBody)
 
-            fetch(`http://localhost:1337/api/auth${isSignup? '/local/register': '/local'}`, {
+        await fetch(`http://localhost:1337/api/auth${isSignup? '/local/register': '/local'}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,8 +58,7 @@ const SignUp = () => {
             } else {
                 throw new Error("Something went wrong");
             }
-        }).then((data) => {
-            const cookies = new Cookies();
+        }).then(async (data) => {
             const token = data.jwt;
             const {email, username, id} = data.user;
             
@@ -63,7 +66,21 @@ const SignUp = () => {
             cookies.set("email", email);
             cookies.set("username", username);
             cookies.set("id", id);
-            window.location.assign(`http://localhost:3000/`);
+            
+            return fetch(`http://localhost:1337/api/stream-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.REACT_APP_STREAM_API_KEY}`
+                },
+                body: JSON.stringify({"user": username})
+            })
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            const streamToken = data.userToken;
+            cookies.set("streamToken", streamToken);
+            window.location.assign('http://localhost:3000')
         })
         .catch((error) => {
             console.log(error)
