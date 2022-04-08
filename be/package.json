@@ -16,7 +16,8 @@
     "dotenv": "^16.0.0",
     "getstream": "^8.0.0",
     "lodash": "^4.17.21",
-    "sqlite3": "5.0.2"
+    "sqlite3": "5.0.2",
+    "stream-chat": "^6.4.0"
   },
   "author": {
     "name": "A Strapi developer"
