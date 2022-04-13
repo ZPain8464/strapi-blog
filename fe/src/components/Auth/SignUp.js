@@ -2,6 +2,8 @@ import { useState } from "react";
 import Cookies from "universal-cookie";
 
 const SignUp = () => {
+    const cookies = new Cookies();
+
     let [email, setEmail] = useState("");
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
@@ -38,7 +40,6 @@ const SignUp = () => {
             "identifier": username,
             "password": password
         }
-        console.log(registeredUserReqBody)
 
             fetch(`http://localhost:1337/api/auth${isSignup? '/local/register': '/local'}`, {
             method: 'POST',
@@ -55,7 +56,6 @@ const SignUp = () => {
                 throw new Error("Something went wrong");
             }
         }).then((data) => {
-            const cookies = new Cookies();
             const token = data.jwt;
             const {email, username, id} = data.user;
             
@@ -63,6 +63,27 @@ const SignUp = () => {
             cookies.set("email", email);
             cookies.set("username", username);
             cookies.set("id", id);
+            
+            const options = {
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+                }
+                
+            }
+            return fetch(`http://localhost:1337/api/stream-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                    },
+                body: JSON.stringify({user: username})
+            })
+        })
+        .then(async (res) => await res.json())
+        .then((data) => {
+            const streamToken = data.streamToken;
+            cookies.set("streamToken", streamToken);
             window.location.assign(`http://localhost:3000/`);
         })
         .catch((error) => {

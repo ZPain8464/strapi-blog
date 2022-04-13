@@ -9,6 +9,7 @@ const SidebarButtons = () => {
         cookies.remove('token');
         cookies.remove('email');
         cookies.remove('username');
+        cookies.remove('streamToken');
         window.location.reload();
     };
 

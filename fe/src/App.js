@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import qs from "qs";
+import Cookies from "universal-cookie";
+import { StreamChat } from "stream-chat";
+import { Chat, LoadingIndicator } from "stream-chat-react";
 
 import Nav from "./components/Nav";
 import ArticlesContainer from "./components/Articles/ArticlesContainer";
@@ -14,6 +17,11 @@ const App = () => {
 
   let [categories, setCategories] = useState([]);
   let [articles, setArticles] = useState([]);
+  let [chatClient, setChatClient] = useState(null);
+
+  const cookies = new Cookies();
+  const streamToken = cookies.get("streamToken");
+  const userName = cookies.get("username");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -33,29 +41,43 @@ const App = () => {
       const articlesArr = data.data;
       setArticles(articlesArr);
     }
+    const initChat = async () => {
+      const chatClient = await StreamChat.getInstance(process.env.REACT_APP_STREAM_API_KEY);
+      await chatClient.setGuestUser({
+        id: userName,
+      });
+      setChatClient(chatClient);
+      }
+    
+      initChat();
 
     fetchCategories();
     fetchArticles();
     
   }, []);
 
-
+  if (!chatClient) {
+    return <LoadingIndicator />
+  }
   
-  return (
-    <>
-      <Nav props={categories}/>
-      <div className="main">
-        <SidebarContainer />
-          <Routes>
-              <Route path="/" element={<ArticlesContainer props={articles} />} >
-                <Route path="category/:id" element={<Articles  props={articles}/>} />
-              </Route>
-              <Route path="article/:id" element={<Article props={articles} />}/>
-              <Route path="signup" element={<SignUp />}/>
-          </Routes>
-      </div>
-    </>
-  );
+    return (
+      <>
+      <Chat client={chatClient}>
+        <Nav props={categories}/>
+        <div className="main">
+          <SidebarContainer />
+          
+            <Routes>
+                <Route path="/" element={<ArticlesContainer props={articles} />} >
+                  <Route path="category/:id" element={<Articles  props={articles}/>} />
+                </Route>
+                <Route path="article/:id" element={<Article props={articles} />}/>
+                <Route path="signup" element={<SignUp />}/>
+            </Routes>
+        </div>
+      </Chat>
+      </>
+    );
 }
 
 export default App;
