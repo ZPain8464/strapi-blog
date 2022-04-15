@@ -4,7 +4,7 @@ import "./App.css";
 import qs from "qs";
 import Cookies from "universal-cookie";
 import { StreamChat } from "stream-chat";
-import { Chat, LoadingIndicator } from "stream-chat-react";
+import { Chat } from "stream-chat-react";
 
 import Nav from "./components/Nav";
 import ArticlesContainer from "./components/Articles/ArticlesContainer";
@@ -43,9 +43,15 @@ const App = () => {
     }
     const initChat = async () => {
       const chatClient = await StreamChat.getInstance(process.env.REACT_APP_STREAM_API_KEY);
-      await chatClient.setGuestUser({
+      await chatClient.connectUser({
         id: userName,
-      });
+        name: userName
+      },
+      streamToken
+      );
+      // await chatClient.setGuestUser({
+      //   id: userName,
+      // });
       setChatClient(chatClient);
       }
     
@@ -57,7 +63,22 @@ const App = () => {
   }, []);
 
   if (!chatClient) {
-    return <LoadingIndicator />
+    return (
+      <>
+        <Nav props={categories}/>
+        <div className="main">
+          <SidebarContainer />
+          
+            <Routes>
+                <Route path="/" element={<ArticlesContainer props={articles} />} >
+                  <Route path="category/:id" element={<Articles  props={articles}/>} />
+                </Route>
+                <Route path="article/:id" element={<Article props={articles} />}/>
+                <Route path="signup" element={<SignUp />}/>
+            </Routes>
+        </div>
+      </>
+    );
   }
   
     return (

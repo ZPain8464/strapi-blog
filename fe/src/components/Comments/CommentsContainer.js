@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import qs from "qs";
 import { useParams } from "react-router-dom";
 
+
 import { CommentsList } from "./CommentsList";
 import { CreateComment } from "./CreateComment";
 
@@ -9,7 +10,6 @@ export const CommentsContainer = () => {
 
     const [comments, setComments] = useState([]);
     const [showComponent, setShowComponent] = useState(false);
-
     useEffect(() => {
         const fetchComments = async () => {
             const query = qs.stringify({
@@ -29,6 +29,7 @@ export const CommentsContainer = () => {
           };
         
           fetchComments();
+
       }, []);
 
       const toggleComponent = () => {
