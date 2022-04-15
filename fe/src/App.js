@@ -49,9 +49,6 @@ const App = () => {
       },
       streamToken
       );
-      // await chatClient.setGuestUser({
-      //   id: userName,
-      // });
       setChatClient(chatClient);
       }
     

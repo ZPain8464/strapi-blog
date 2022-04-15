@@ -12,8 +12,11 @@ export const CommentsList = ({comments}) => {
                     <div className="comment_card_textarea">
                         <p>{c.attributes.comment_text}</p>
                     </div>
-                    <div>
-                        Reactions | Reply
+                    <div className="comment_card_actions_container">
+                        <div className="comment_card_actions_buttons">
+                            Reply | Like | <button className="edit_comment_button">Edit</button>
+                        </div>
+                        
                     </div>
                 </div>
         ))
