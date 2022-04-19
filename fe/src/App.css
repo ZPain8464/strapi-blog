@@ -207,7 +207,8 @@ input, label {
 }
 
 .comment_card_posted_details,
-.create_comment_card_details {
+.create_comment_card_details,
+.edit_comment_card_details {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -215,7 +216,8 @@ input, label {
     border-bottom: 1px grey solid;
 }
 
-.comment_card_textarea {
+.comment_card_textarea,
+.edit_comment_textarea {
     width: 100%;
     text-align: left;
     height: 100px;
@@ -233,7 +235,8 @@ input, label {
     padding: 6px;
 }
 
-.create_comment_post_button {
+.create_comment_post_button,
+.edit_comment_post_button {
     background-color: #007fff;
     border: none;
     color: #ffffff;

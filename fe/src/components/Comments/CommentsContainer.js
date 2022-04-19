@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import qs from "qs";
 import { useParams } from "react-router-dom";
 
-
 import { CommentsList } from "./CommentsList";
 import { CreateComment } from "./CreateComment";
 
@@ -10,6 +9,7 @@ export const CommentsContainer = () => {
 
     const [comments, setComments] = useState([]);
     const [showComponent, setShowComponent] = useState(false);
+    
     useEffect(() => {
         const fetchComments = async () => {
             const query = qs.stringify({
@@ -27,7 +27,7 @@ export const CommentsContainer = () => {
             const commentsArr = data.data;
             setComments(commentsArr);
           };
-        
+          
           fetchComments();
 
       }, []);
@@ -64,7 +64,9 @@ export const CommentsContainer = () => {
                     setShowComponent={setShowComponent}/>
             </div>
             {commentCount.length > 0 && 
-            <CommentsList comments={filterBlogComments}/>
+            <CommentsList 
+                comments={filterBlogComments}
+                />
             }
         </div>
     );
