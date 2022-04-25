@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import { ArticleContext } from "../Articles/Article";
 
 export const CommentCard = ({
+    comments,
+    setComment,
     username,
     cardId,
     createdAt,
@@ -47,18 +49,6 @@ export const CommentCard = ({
     }
 
     const postEditedComment = async () => {
-        // Required fields: 
-        // {
-        //     "data": {
-        //         "comment_text": "updated postman comment",
-        //         "article": {
-        //             "id": 1
-        //         },
-        //         "users_permissions_user": {
-        //             "id": 29
-        //         }
-        //     }
-        // }
 
         const filterArticle = articles.filter(a => {
             return a.id.toString() === params.id;
@@ -84,8 +74,17 @@ export const CommentCard = ({
                 })
         });
         const response = await request.json();
-        console.log(response);
-        const newCommentId = response.data.id;
+        const query = qs.stringify({
+            populate: ['article', 'users_permissions_user'], 
+          }, {
+            encodeValuesOnly: true,
+          });
+        // Retrieve edited comment by id
+         const getComment = await fetch(`http://localhost:1337/api/comments/${commentId}?${query}`);
+         const editedComment = await getComment.json();
+        setComment([...comments, editedComment.data]);
+        setEditCommentId("");
+        setIsEditing(false);
     }
 
     return (

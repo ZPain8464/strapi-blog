@@ -12,8 +12,8 @@ const Articles = ({props}) => {
         <>  
             
             {params.id ? filterArticles.map((a,i) => (
-                <div className="article_card_container">
-                <Link key={i} to={`/article/${a.id}`}>
+                <div key={i} className="article_card_container">
+                <Link to={`/article/${a.id}`}>
                     <h2>{a.attributes.title}</h2>
                     <div className="article_card">
                         <img alt='' src={`http://localhost:1337${a.attributes.image.data.attributes.formats.small.url}`} />
@@ -23,8 +23,8 @@ const Articles = ({props}) => {
             ))
             :
             articles.map((a, i) => (
-                <div className="article_card_container">
-                <Link key={i} to={`/article/${a.id}`}>
+                <div key={i} className="article_card_container">
+                <Link to={`/article/${a.id}`}>
                         <h2>{a.attributes.title}</h2>
                         <div className="article_card">
                             <img alt="" src={`http://localhost:1337${a.attributes.image.data.attributes.formats.small.url}`} />

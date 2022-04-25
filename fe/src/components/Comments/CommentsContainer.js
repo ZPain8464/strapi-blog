@@ -2,8 +2,15 @@ import React, { useEffect, useState } from "react";
 import qs from "qs";
 import { useParams } from "react-router-dom";
 
-import { CommentsList } from "./CommentsList";
+import {CommentCard} from "./CommentCard";
 import { CreateComment } from "./CreateComment";
+
+import {
+    getComments as getCommentsApi,
+    createComment as createCommentApi,
+    updateComment as updateCommentApi,
+    deleteComment as deleteCommentApi
+} from '../api.js'
 
 export const CommentsContainer = () => {
 
@@ -64,9 +71,20 @@ export const CommentsContainer = () => {
                     setShowComponent={setShowComponent}/>
             </div>
             {commentCount.length > 0 && 
-            <CommentsList 
-                comments={filterBlogComments}
-                />
+            filterBlogComments.reverse().map((c, i) => (
+                <React.Fragment key={i}>
+                    <CommentCard 
+                        comments={filterBlogComments}
+                        setComments={setComments}
+                        username={c.attributes.users_permissions_user.data.attributes.username}
+                        cardId={i}
+                        commentId={c.id}
+                        createdAt={c.attributes.createdAt}
+                        commentText={c.attributes.comment_text}
+                        strapiUId={c.attributes.users_permissions_user.data.id}
+                    />
+                </React.Fragment>   
+            ))
             }
         </div>
     );
