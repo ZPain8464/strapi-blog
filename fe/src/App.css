@@ -104,7 +104,8 @@ h2, li {
 }
 
 .feeds_button,
-.logout_button {
+.logout_button,
+.chat_button {
     width: 80%;
     height: 30px;
     background-color: #007fff;
@@ -222,6 +223,10 @@ input, label {
     text-align: left;
     height: 100px;
     border: solid 1px grey;
+}
+
+.comment_card_actions_buttons {
+    text-align: center;
 }
 
 .comment_button {

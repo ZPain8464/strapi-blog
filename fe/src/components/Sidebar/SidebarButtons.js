@@ -18,7 +18,12 @@ const SidebarButtons = () => {
         <div>
             <button className="feeds_button">
                 <Link to="/">
-                Community Feed
+                Home
+                </Link>
+            </button>
+            <button className="chat_button">
+                <Link to="/chat">
+                Chat Room
                 </Link>
             </button>
             <button 

@@ -12,6 +12,7 @@ import Articles from "./components/Articles/Articles"
 import Article from "./components/Articles/Article";
 import SignUp from "./components/Auth/SignUp";
 import SidebarContainer from "./components/Sidebar/SidebarContainer";
+import {ChatRoom} from "./components/Chat/ChatRoom"
 
 const App = () => {
 
@@ -91,6 +92,7 @@ const App = () => {
                 </Route>
                 <Route path="article/:id" element={<Article props={articles} />}/>
                 <Route path="signup" element={<SignUp />}/>
+                <Route path="chat" element={<ChatRoom />} />
             </Routes>
         </div>
       </Chat>

@@ -1,25 +1,25 @@
 import React, { useState, useContext } from "react";
 import Cookies from "universal-cookie";
-import qs from "qs";
 import { useParams } from "react-router-dom";
 
 import { ArticleContext } from "../Articles/Article";
+import { CreateComment } from "../Comments/CreateComment";
 
 export const CommentCard = ({
-    comments,
-    setComment,
+    comment,
     username,
     cardId,
     createdAt,
     commentText,
     strapiUId,
-    commentId
+    commentId,
+    activeComment,
+    setActiveComment,
+    editComment,
+    deleteComment
 }) => {
 
-    let [editCommentId, setEditCommentId] = useState("");
-    let [isEditing, setIsEditing] = useState(false);
-    let [initialText, setInitialText] = useState("");
-    let [editedText, setEditedText] = useState("");
+    const [showEditsButton, setShowEditsButton] = useState(false);
 
     const params = useParams();
     const articles = useContext(ArticleContext);
@@ -29,64 +29,34 @@ export const CommentCard = ({
     const strapiUserId = parseInt(getStrapiUserId);
     const token = cookies.get("token");
 
-    const commentToEdit = (cId) => {
-        editCommentId = cId;
-        initialText = commentText;
-        setEditCommentId(editCommentId);
-        setIsEditing(true);
-        setInitialText(initialText);
-    }
+    // Editing conditional requirements
+    const isEditing =
+    activeComment &&
+    activeComment.id === commentId &&
+    activeComment.type === "editing";
 
-    const getNewText = (e) => {
-        editedText = e.target.value;
-        setEditedText(editedText);
-    }
+    const canEdit = strapiUserId === comment.attributes.users_permissions_user.data.id;
+    const canDelete = strapiUserId === comment.attributes.users_permissions_user.data.id;
 
-    const cancelEditComment = () => {
-        setEditCommentId("");
-        setIsEditing(false);
-        setEditedText(initialText);
-    }
-
-    const postEditedComment = async () => {
-
+    const postEditedComment = async (commentText) => {
+        
         const filterArticle = articles.filter(a => {
             return a.id.toString() === params.id;
         });
         const articleId = filterArticle[0].id;
-        const request = await fetch(`http://localhost:1337/api/comments/${commentId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(
-                {
-                    data: {
-                        comment_text: editedText,
-                        article: {
-                            id: articleId
-                        },
-                        users_permissions_user: {
-                            id: strapiUserId
-                        }
-                    }
-                })
-        });
-        const response = await request.json();
-        const query = qs.stringify({
-            populate: ['article', 'users_permissions_user'], 
-          }, {
-            encodeValuesOnly: true,
-          });
-        // Retrieve edited comment by id
-         const getComment = await fetch(`http://localhost:1337/api/comments/${commentId}?${query}`);
-         const editedComment = await getComment.json();
-        setComment([...comments, editedComment.data]);
-        setEditCommentId("");
-        setIsEditing(false);
+        console.log("text: ", commentText, "commentId: ", commentId)
+        editComment(commentText, commentId, articleId, strapiUId, token)
     }
 
+    const handleEditsButton = () => {
+        setActiveComment({ id: commentId, type: "editing"});
+        setShowEditsButton((prevShowEditsButton) => !prevShowEditsButton);
+    }
+
+    const handleDeleteButton = (commentId, token) => {
+        deleteComment(commentId, token)
+    }
+    
     return (
         <div className="comment_card_container" key={cardId}>
                     <div className="comment_card_posted_details">
@@ -95,45 +65,36 @@ export const CommentCard = ({
                     </div>
                     <div className="comment_card_textarea">
                         {!isEditing && <p>{commentText}</p>}
-                        {isEditing && <textarea
-                                        onChange={(e) => getNewText(e)}
-                                        >
-                                            {initialText}
-                                        </textarea>}
-                        
+                        {isEditing && (
+                            <CreateComment 
+                                commentId
+                                setShowEditsButton={setShowEditsButton}
+                                showEditsButton
+                                setActiveComment={setActiveComment}
+                                initialText={commentText}
+                                handleComment={postEditedComment}
+                                isEditingComment
+                                />
+                        )}
                     </div>
                     <div className="comment_card_actions_container">
                         <div className="comment_card_actions_buttons">
-                            {editCommentId === commentId 
-                            ? (
-                                <>
+                            {canEdit && (
                                 <button 
-                                    className="edit_comment_post_button"
-                                    onClick={postEditedComment}
+                                    className={showEditsButton && comment.id === commentId ? "hidden" : "edits_button"}
+                                    onClick={handleEditsButton}
                                     >
-                                    Save
+                                    Edit
                                 </button>
-                                <button 
-                                onClick={cancelEditComment}
+                            )}
+                            {canDelete && (
+                                <button
+                                    className={showEditsButton ? "hidden" : "delete_button"}
+                                    onClick={() => handleDeleteButton(commentId, token)}
                                 >
-                                    Cancel
+                                    Delete
                                 </button>
-                                </>
-                            ) : (
-                                <>
-                                <button>Reply</button> 
-                                <button>Like</button>
-                                <button className={
-                                    strapiUId === strapiUserId
-                                    ? "edit_comment_button"
-                                    : "hidden"}
-                                    onClick={() => commentToEdit(commentId)}
-                                    >
-                                        Edit
-                                </button> 
-                                </>
-                            )
-                            }
+                            )}
                         </div>
                         
                     </div>

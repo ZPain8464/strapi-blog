@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import qs from "qs";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { ArticleContext } from "../Articles/Article";
+import Cookies from "universal-cookie";
 
 import {CommentCard} from "./CommentCard";
 import { CreateComment } from "./CreateComment";
@@ -9,39 +10,57 @@ import {
     getComments as getCommentsApi,
     createComment as createCommentApi,
     updateComment as updateCommentApi,
-    deleteComment as deleteCommentApi
-} from '../api.js'
+    deleteComment as deleteCommentApi,
+} from "../../utils/api";
 
 export const CommentsContainer = () => {
 
     const [comments, setComments] = useState([]);
     const [showComponent, setShowComponent] = useState(false);
+    const [activeComment, setActiveComment] = useState(null);
     
     useEffect(() => {
-        const fetchComments = async () => {
-            const query = qs.stringify({
-                populate: ['article', 'users_permissions_user'], 
-              }, {
-                encodeValuesOnly: true,
-              });
-            const response = await fetch(`http://localhost:1337/api/comments?${query}`, {
-                method: 'GET',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            const commentsArr = data.data;
+         getCommentsApi().then((commentsArr) => {
             setComments(commentsArr);
-          };
-          
-          fetchComments();
-
+         });
       }, []);
+
+    const articles = useContext(ArticleContext);
+    const cookies = new Cookies();
+    const token = cookies.get("token");
+    const id = cookies.get("id");
 
       const toggleComponent = () => {
         setShowComponent((prevShowComponent) => !prevShowComponent);
-    }
+    };
+
+    const addComment = (commentText, articleId, userId) => {
+        const filterArticle = articles.filter(a => {
+            return a.id.toString() === params.id;
+        });
+        articleId = filterArticle[0].id;
+        userId = id;
+        createCommentApi(commentText, articleId, userId, token).then((newComment) => {
+            setComments([...comments, newComment.data]);
+        });
+    };
+
+    const editComment = async (commentText, commentId, articleId, userId, token) => {
+        updateCommentApi(commentText, commentId, articleId, userId, token).then((newComments) => {
+            setComments(newComments);
+            setActiveComment(null);
+        })
+    };
+
+    const deleteComment = async (commentId, token) => {
+        deleteCommentApi(commentId, token).then((response) => {
+            console.log(response);
+            const updatedComments = comments.filter(
+                (comment) => comment.id !== commentId
+            );
+        setComments(updatedComments);
+        });
+    };
 
     // Filter comments from comments state
     const params = useParams();
@@ -58,23 +77,27 @@ export const CommentsContainer = () => {
                 : ""
                 }
                 <button 
-                    className="comment_button"
+                    className={id ? "comment_button" : "hidden"}
                     onClick={toggleComponent}
                     >
                     + Write a Comment
                 </button>
             </div>
-            <div className={showComponent ? `create_comment_container` : 'hidden'}>
+            <div className={showComponent ? `comment_card_container` : 'hidden'}>
                 <CreateComment 
-                    comments={comments}
-                    setComments={setComments}
-                    setShowComponent={setShowComponent}/>
+                    isNewComment
+                    showEditButton
+                    setShowEditButton
+                    handleComment={addComment}
+                    setShowComponent={setShowComponent}
+                    toggleComponent={toggleComponent}
+                />
             </div>
             {commentCount.length > 0 && 
             filterBlogComments.reverse().map((c, i) => (
                 <React.Fragment key={i}>
                     <CommentCard 
-                        comments={filterBlogComments}
+                        comment={c}
                         setComments={setComments}
                         username={c.attributes.users_permissions_user.data.attributes.username}
                         cardId={i}
@@ -82,6 +105,12 @@ export const CommentsContainer = () => {
                         createdAt={c.attributes.createdAt}
                         commentText={c.attributes.comment_text}
                         strapiUId={c.attributes.users_permissions_user.data.id}
+                        activeComment={activeComment}
+                        setActiveComment={setActiveComment}
+                        addComment={addComment}
+                        editComment={editComment}
+                        deleteComment={deleteComment}
+                        
                     />
                 </React.Fragment>   
             ))
